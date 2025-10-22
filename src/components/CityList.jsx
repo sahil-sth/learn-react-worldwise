@@ -1,6 +1,6 @@
 import styles from "./CityList.module.css";
 
-function CityList() {
+function CityList({ cities, isLoading }) {
   return <ul className={styles.cityList}>CityList</ul>;
 }
 
