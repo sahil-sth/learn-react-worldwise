@@ -3,7 +3,7 @@
 import { useState } from "react";
 
 import styles from "./Form.module.css";
-
+import Button from "./Button";
 export function convertToEmoji(countryCode) {
   const codePoints = countryCode
     .toUpperCase()
@@ -49,8 +49,8 @@ function Form() {
       </div>
 
       <div className={styles.buttons}>
-        <button>Add</button>
-        <button>&larr; Back</button>
+        <Button type="back">&larr; Back</Button>
+        <Button type="primary">Add</Button>
       </div>
     </form>
   );
