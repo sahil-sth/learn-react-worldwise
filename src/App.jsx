@@ -12,27 +12,7 @@ import CountryList from "./components/CountryList";
 import City from "./components/City";
 import Form from "./components/Form";
 
-const BASE_API_URL = "http://localhost:8000";
-
 function App() {
-  const [cities, setCities] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  // as soon as it mounts
-  useEffect(function () {
-    async function fetchCities() {
-      try {
-        setIsLoading(true);
-        const res = await fetch(`${BASE_API_URL}/cities`);
-        const data = await res.json();
-        setCities(data);
-      } catch (e) {
-        console.error("Error in fetching cities API: " + e.message);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    fetchCities();
-  }, []);
   return (
     <BrowserRouter>
       <Routes>
@@ -42,15 +22,9 @@ function App() {
         <Route path="login" element={<Login />} />
         <Route path="app" element={<AppLayout />}>
           <Route index element={<Navigate to="cities" replace />} />
-          <Route
-            path="cities"
-            element={<CityList cities={cities} isLoading={isLoading} />}
-          />
+          <Route path="cities" element={<CityList />} />
           <Route path="cities/:id" element={<City />} />
-          <Route
-            path="countries"
-            element={<CountryList cities={cities} isLoading={isLoading} />}
-          />
+          <Route path="countries" element={<CountryList />} />
           <Route path="form" element={<Form />} />
         </Route>
         <Route path="*" element={<PageNotFound />} />
