@@ -1,9 +1,10 @@
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import styles from "./Map.module.css";
 import { useCities } from "../contexts/CitiesContext";
 import { useGeolocation } from "../hooks/useGeolocation";
+import { useUrlPosition } from "../hooks/useUrlPosition";
 
+import styles from "./Map.module.css";
 import {
   MapContainer,
   TileLayer,
@@ -15,7 +16,6 @@ import {
 import Button from "./Button";
 
 function Map() {
-  const [searchParams] = useSearchParams();
   const [mapPosition, setMapPosition] = useState([40, 0]);
   const { cities } = useCities();
   const {
@@ -23,9 +23,8 @@ function Map() {
     position: geolocationPosition,
     getPosition,
   } = useGeolocation();
+  const [mapLat, mapLng] = useUrlPosition();
 
-  const mapLat = searchParams.get("lat");
-  const mapLng = searchParams.get("lng");
   // sync with the mapLat, mapLng coming from the url
   useEffect(
     function () {
@@ -104,7 +103,7 @@ function ChangeCenter({ position }) {
 
   useEffect(() => {
     console.log("Position: ", position);
-    map.setView(position, map.getZoom());
+    map.setView(position);
   }, [position, map]);
 
   return null;
