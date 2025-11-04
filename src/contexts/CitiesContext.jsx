@@ -1,32 +1,79 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useReducer,
+} from "react";
 
 const BASE_API_URL = "http://localhost:8000";
 
 const CitiesContext = createContext();
 
+const initialState = {
+  cities: [],
+  isLoading: false,
+  currentCity: {},
+  error: "",
+};
+
+function reducer(state, action) {
+  switch (action.type) {
+    case "loading":
+      return { ...state, isLoading: true };
+    case "cities/loaded":
+      return { ...state, cities: action.payload, isLoading: false };
+    case "city/loaded":
+      return { ...state, currentCity: action.payload, isLoading: false };
+    case "city/created":
+      return {
+        ...state,
+        isLoading: false,
+        cities: [...state.cities, action.payload],
+      };
+    case "city/deleted":
+      return {
+        ...state,
+        isLoading: false,
+        cities: state.cities.filter((city) => city.id !== action.payload),
+      };
+    case "rejected":
+      return { ...state, isLoading: false, error: action.payload };
+    default:
+      throw new Error("No such dispatch action found");
+  }
+}
+
 function CitiesProvider({ children }) {
-  const [cities, setCities] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [currentCity, setCurrentCity] = useState({});
+  const [state, dispatch] = useReducer(reducer, initialState);
+  const { cities, isLoading, currentCity } = state; // destructuring the state coming from useReducer
   // as soon as it mounts
   useEffect(function () {
     async function fetchCities() {
+      dispatch({ type: "loading" });
       try {
-        setIsLoading(true);
         const res = await fetch(`${BASE_API_URL}/cities`);
         const data = await res.json();
-        setCities(data);
+        dispatch({ type: "cities/loaded", payload: data });
       } catch (e) {
-        console.error("Error in fetching cities API: " + e.message);
-      } finally {
-        setIsLoading(false);
+        dispatch({ type: "rejected", payload: "Error while loading cities" });
       }
     }
     fetchCities();
   }, []);
-  async function createCity(newCity) {
+  async function getCity(id) {
+    dispatch({ type: "loading" });
     try {
-      setIsLoading(true);
+      const res = await fetch(`${BASE_API_URL}/cities/${id}`);
+      const data = await res.json();
+      dispatch({ type: "city/loaded", payload: data });
+    } catch (e) {
+      dispatch({ type: "rejected", payload: "Error while getting city" });
+    }
+  }
+  async function createCity(newCity) {
+    dispatch({ type: "loading" });
+    try {
       const res = await fetch(`${BASE_API_URL}/cities`, {
         method: "POST",
         body: JSON.stringify(newCity),
@@ -35,38 +82,21 @@ function CitiesProvider({ children }) {
         },
       });
       const data = await res.json();
-
-      setCities((cities) => [...cities, data]);
-    } catch (error) {
-      console.error("Error while creating city in API: " + error.message);
-    } finally {
-      setIsLoading(false);
-    }
-  }
-  async function getCity(id) {
-    try {
-      setIsLoading(true);
-      const res = await fetch(`${BASE_API_URL}/cities/${id}`);
-      const data = await res.json();
-      setCurrentCity(data);
+      dispatch({ type: "city/created", payload: data });
     } catch (e) {
-      console.error("Error while fetching city from API: " + e.message);
-    } finally {
-      setIsLoading(false);
+      dispatch({ type: "rejected", payload: "Error while creating a city" });
     }
   }
+
   async function deleteCity(id) {
+    dispatch({ type: "loading" });
     try {
-      setIsLoading(true);
       await fetch(`${BASE_API_URL}/cities/${id}`, {
         method: "DELETE",
       });
-      // set the cities to remove the deleted city
-      setCities((cities) => cities.filter((city) => city.id !== id));
+      dispatch({ type: "city/deleted", payload: id });
     } catch (e) {
-      console.log("Error while deleting city from API: " + e.message);
-    } finally {
-      setIsLoading(false);
+      dispatch({ type: "rejected", payload: "Error while deleting city" });
     }
   }
   return (
