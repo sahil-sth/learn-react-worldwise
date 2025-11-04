@@ -31,7 +31,7 @@ function Form() {
   const [date, setDate] = useState(new Date());
   const [notes, setNotes] = useState("");
   const [geocodingError, setGeocodingError] = useState("");
-  const { createCity } = useCities();
+  const { createCity, isLoading } = useCities();
 
   useEffect(
     function () {
@@ -89,8 +89,9 @@ function Form() {
     };
     createCity(newCity);
   }
+
   return (
-    <form className={styles.form}>
+    <form className={`${styles.form} ${isLoading ? styles.loading : ""}`}>
       <div className={styles.row}>
         <label htmlFor="cityName">City name</label>
         <input
