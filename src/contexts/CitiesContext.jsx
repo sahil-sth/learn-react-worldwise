@@ -64,6 +64,10 @@ function CitiesProvider({ children }) {
     fetchCities();
   }, []);
   async function getCity(id) {
+    // we do not need to go to api if the current city is already there
+    if (currentCity.id === Number(id)) {
+      return;
+    }
     dispatch({ type: "loading" });
     try {
       const res = await fetch(`${BASE_API_URL}/cities/${id}`);
