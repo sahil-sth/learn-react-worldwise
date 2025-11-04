@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useUrlPosition } from "../hooks/useUrlPosition";
+import { useCities } from "../contexts/CitiesContext";
 
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -30,6 +31,7 @@ function Form() {
   const [date, setDate] = useState(new Date());
   const [notes, setNotes] = useState("");
   const [geocodingError, setGeocodingError] = useState("");
+  const { createCity } = useCities();
 
   useEffect(
     function () {
@@ -72,6 +74,21 @@ function Form() {
   if (!lat && !lng) {
     return <Message message="Start by clicking somewhere on the map" />;
   }
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    if (!cityName || !date) return;
+
+    const newCity = {
+      cityName,
+      country,
+      date,
+      emoji,
+      notes,
+      position: { lat, lng },
+    };
+    createCity(newCity);
+  }
   return (
     <form className={styles.form}>
       <div className={styles.row}>
@@ -86,12 +103,7 @@ function Form() {
 
       <div className={styles.row}>
         <label htmlFor="date">When did you go to {cityName}?</label>
-        {/* <input
-          id="date"
-          onChange={(e) => setDate(e.target.value)}
-          value={date}
-        /> */}
-        <DatePicker onChange={(e) => setDate(e)} selected={date} />
+        <DatePicker id="date" onChange={(e) => setDate(e)} selected={date} />
       </div>
 
       <div className={styles.row}>
@@ -105,7 +117,9 @@ function Form() {
 
       <div className={styles.buttons}>
         <BackButton />
-        <Button type="primary">Add</Button>
+        <Button type="primary" onClick={handleSubmit}>
+          Add
+        </Button>
       </div>
     </form>
   );

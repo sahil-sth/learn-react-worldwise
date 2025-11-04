@@ -35,7 +35,6 @@ function Map() {
   // sync with the  geolocation
   useEffect(
     function () {
-      console.log("useEffect to sync geoLocationPosition with map position");
       if (geolocationPosition) {
         setMapPosition([geolocationPosition.lat, geolocationPosition.lng]);
       }
@@ -84,7 +83,6 @@ function DetectClick() {
 
   useMapEvents({
     click: (e) => {
-      console.log(e);
       const { lat, lng } = e.latlng;
       navigate(`form?lat=${lat}&lng=${lng}`);
     },
@@ -102,7 +100,6 @@ function ChangeCenter({ position }) {
   const map = useMap();
 
   useEffect(() => {
-    console.log("Position: ", position);
     map.setView(position);
   }, [position, map]);
 
