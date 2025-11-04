@@ -35,7 +35,8 @@ function CitiesProvider({ children }) {
         },
       });
       const data = await res.json();
-      console.log("Data from POST API: ", data);
+
+      setCities((cities) => [...cities, data]);
     } catch (error) {
       console.error("Error while creating city in API: " + error.message);
     } finally {
